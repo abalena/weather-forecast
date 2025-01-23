@@ -1,28 +1,28 @@
 "use client";
 
-import { useUserLocation, useWeatherData } from "@/hooks";
+import { useUserLocation } from "@/hooks";
 
-import { LoadingIndicator } from "../loading-indicator/loading-indicator";
-import { WeatherWidget } from "../weather-widget/weather-widget";
+import {
+  WeatherWidget,
+  WeatherWidgetSize,
+} from "../weather-widget/weather-widget";
 
 export function WeatherPage() {
   const { location, isLoading } = useUserLocation();
 
-  const data = useWeatherData(location);
-
-  if (isLoading) {
-    return <LoadingIndicator />;
-  }
-
   return (
     <section className="w-full h-full flex justify-center items-center">
-      <div className="p-6">
-        {!location ? (
+      <div className="p-6 w-[500px] h-[800px]">
+        {!location || isLoading ? (
           <p className="text-xl text-center">
             To get weather forecast, please allow sharing your location.
           </p>
         ) : (
-          <WeatherWidget />
+          <div className="w-full h-full grid gap-4 grid-cols-4 grid-rows-8">
+            <WeatherWidget size={WeatherWidgetSize.small} location={location} />
+            <WeatherWidget size={WeatherWidgetSize.wide} location={location} />
+            <WeatherWidget size={WeatherWidgetSize.large} location={location} />
+          </div>
         )}
       </div>
     </section>

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { API } from "@/constants";
-import { asyncHookCallWrapper } from "@/helpers";
+import { asyncHookCallWrapper, handleError } from "@/helpers";
 import { IAsyncLoadingHook, ILocation } from "@/interfaces";
 
 export const useWeatherData = (
@@ -13,6 +13,8 @@ export const useWeatherData = (
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [weather, setWeather] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | undefined>();
+
   const requestUrl = API.post.weather;
 
   useEffect(() => {
@@ -31,13 +33,22 @@ export const useWeatherData = (
 
       const res = await fetch(requestUrl, config);
 
+      if (!res.ok) {
+        handleError(`Failed to fetch weather data: ${res.statusText}`);
+      }
+
       const data = await res.json();
       setWeather(data);
     };
 
-    const getWeatherData = asyncHookCallWrapper(executeFn, setIsLoading);
+    const getWeatherData = asyncHookCallWrapper(
+      executeFn,
+      setIsLoading,
+      setError
+    );
+
     getWeatherData();
   }, [location, requestUrl]);
 
-  return { data: weather, isLoading };
+  return { data: weather, isLoading, error };
 };
